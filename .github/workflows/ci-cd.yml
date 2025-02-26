@@ -31,4 +31,4 @@ jobs:
         run: docker images
 
       - name: Push Docker Image
-        run: docker push ghcr.io/${{ github.actor }}/image-api:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/image-api:latest
