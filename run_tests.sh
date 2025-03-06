@@ -5,12 +5,20 @@ set -e  # Exit on first error
 set -o pipefail  # Prevent errors in pipelines from being masked
 set -u  # Treat unset variables as an error
 
+# Navigate to the project directory
+cd "C:\Workspace\dev1\image-api" || exit 1
+echo "Changed directory to $(pwd)"
+
+# Set PYTHONPATH to the current directory
+export PYTHONPATH=$(pwd)
+echo "PYTHONPATH set to $PYTHONPATH"
+
 # Define the test files
 TEST_FILES=("tests/test_main.py" "tests/test_image_processing.py")
 
 # Run pytest on all test files
 echo "Running tests..."
-pytest -v "${TEST_FILES[@]}"
+pytest -s -v "${TEST_FILES[@]}"
 
 # Capture exit status of pytest
 EXIT_STATUS=$?
