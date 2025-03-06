@@ -1,6 +1,7 @@
 {
   "name": "image-api",
   "version": "1.0.0",
+<<<<<<< HEAD
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
@@ -1926,5 +1927,33 @@
         "node": ">=0.4"
       }
     }
+=======
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node .",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^1.8.1",
+    "body-parser": "^1.19.2",
+    "config": "^3.3.7",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.4",
+    "sharp": "^0.33.5",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/morgan": "^1.9.3",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^18.19.76",
+    "@types/uuid": "^8.3.4",
+    "typescript": "^5.3.3"
+>>>>>>> 015a45a (Removing Unwanted files)
   }
 }

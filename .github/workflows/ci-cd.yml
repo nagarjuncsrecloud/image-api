@@ -1,34 +1,87 @@
-name: Build and Push Docker Image
+name: CI/CD Pipeline for Image API (Local)
 
 on:
   push:
     branches:
-      - master  # Triggers when pushing to the master branch
+      - master
   pull_request:
     branches:
-      - master  # Runs for pull requests to master
+      - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Uses GitHub-hosted runner
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      sonarqube:
+        image: sonarqube:latest
+        ports:
+          - "9000:9000"
+
+      sonarqube-db:
+        image: postgres:13
+        env:
+          POSTGRES_USER: sonar
+          POSTGRES_PASSWORD: sonar
+          POSTGRES_DB: sonar
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Set Up Python
+        uses: actions/setup-python@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          python-version: "3.9"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx pytest-mock
+
+      - name: Run Unit Tests
+        run: ./run_tests.sh
 
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/image-api:latest .
+        run: |
+          docker build -t nagarjuncsrecloud/image-api .
+          docker tag nagarjuncsrecloud/image-api nagarjuncsrecloud/image-api:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push nagarjuncsrecloud/image-api:latest
 
-      - name: Verify Docker Image exists
-        run: docker images
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v1
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=image-api
+            -Dsonar.sources=.
+            -Dsonar.host.url=http://localhost:9000
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
-      - name: Push Docker Image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/image-api:latest
+      - name: Deploy with Terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve || terraform rollback
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Start Minikube (if not running)
+        run: |
+          minikube status || minikube start --driver=docker
+
+      - name: Set up kubectl
+        run: |
+          minikube kubectl -- get pods
+
+      - name: Deploy to Local Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl rollout status deployment/image-api
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get services

@@ -1,0 +1,70 @@
+# Replica settings
+replicaCount: 2
+
+# Image settings
+image:
+  repository: "nagarjuncsrecloud/image-api"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Service settings
+service:
+  type: ClusterIP
+  port: 8000
+
+# Autoscaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  cpuTarget: 50
+  memoryTarget: 60
+
+# Ingress configuration
+ingress:
+  enabled: true
+  host: "image-api.local"
+  tlsSecret: "image-api-tls"
+
+# Liveness and Readiness Probe configuration
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 3
+    periodSeconds: 10
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Resource limits and requests for the container
+resources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+# Security settings for the pod
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 2000
+
+# Pod Security Policies (PSP) (for extra security)
+podSecurityPolicy:
+  enabled: true
+
+# RBAC settings
+rbac:
+  enabled: true
+
+# Node selector (if needed for scheduling pods on specific nodes)
+nodeSelector: {}
+
+# Tolerations (for taints, if necessary)
+tolerations: []
+
+# Affinity rules
+affinity: {}
