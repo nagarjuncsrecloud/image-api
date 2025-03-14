@@ -2,61 +2,73 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "nagarjuncsrecloud/image-api"
-        DOCKER_TAG = "latest"
-        KUBE_NAMESPACE = "image-api"
+        DOCKER_USERNAME = credentials('dockerhub-username')
+        DOCKER_PASSWORD = credentials('dockerhub-password')
+        SONARQUBE_TOKEN = credentials('sonarqube-token')
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        IMAGE_NAME = "nagarjuncsrecloud/image-api"
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-aws'
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git credentialsId: 'github-ssh', url: 'git@github.com:nagarjuncsrecloud/image-api.git', branch: 'main'
+                git 'https://github.com/nagarjuncsrecloud/image-api.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    withDockerRegistry([credentialsId: 'docker-hub', url: '']) {
-                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'sonar-scanner -Dsonar.projectKey=image-api -Dsonar.sources=. -Dsonar.host.url=http://<sonarqube-ip>:9000 -Dsonar.login=$SONARQUBE_TOKEN'
                     }
                 }
             }
         }
 
-        stage('Start Minikube') {
+        stage('Run Tests') {
+            steps {
+                sh './run_tests.sh'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker build -t $IMAGE_NAME .
+                    docker tag $IMAGE_NAME $IMAGE_NAME:latest
+                '''
+            }
+        }
+
+        stage('Push to Docker Hub') {
             steps {
                 script {
-                    sh "minikube start --driver=docker"
+                    docker.withRegistry('', 'dockerhub-credentials') {
+                        sh 'docker push $IMAGE_NAME:latest'
+                    }
                 }
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Deploy with Helm') {
             steps {
                 script {
-                    sh "kubectl config use-context minikube"
-                    sh "kubectl create namespace ${KUBE_NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -"
-                    sh "helm upgrade --install image-api helm/ --namespace ${KUBE_NAMESPACE} --set image.repository=${DOCKER_IMAGE},image.tag=${DOCKER_TAG}"
+                    sh '''
+                        helm upgrade --install image-api helm/ \
+                        --set image.repository=$IMAGE_NAME \
+                        --set image.tag=latest
+                    '''
                 }
             }
         }
     }
 
     post {
-        success {
-            echo "Deployment Successful!"
-        }
-        failure {
-            echo "Deployment Failed!"
+        always {
+            cleanWs()
         }
     }
 }

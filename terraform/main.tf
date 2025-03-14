@@ -1,125 +1,29 @@
-provider "kubernetes" {
-  config_path = "~/.kube/config"
+provider "aws" {
+  region = "us-east-1"
 }
 
-resource "kubernetes_deployment" "image_api" {
-  metadata {
-    name = "image-api"
-  }
+resource "aws_eks_cluster" "image_api_cluster" {
+  name = "image-api-cluster"
+  role_arn = var.eks_role_arn
+  version = "1.23"
+}
 
-  spec {
-    replicas = 3
-    selector {
-      match_labels = {
-        app = "image-api"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "image-api"
-        }
-      }
-      spec {
-        container {
-          name  = "image-api"
-          image = "nagarjuncsrecloud/image-api:latest"
-
-          port {
-            container_port = 8000
-          }
-
-          env_from {
-            secret_ref {
-              name = "api-secrets"
-            }
-          }
-
-          env {
-            name  = "ENV"
-            value = "production"
-          }
-
-          liveness_probe {
-            http_get {
-              path = "/health"
-              port = 8000
-            }
-            initial_delay_seconds = 5
-            period_seconds        = 10
-          }
-
-          readiness_probe {
-            http_get {
-              path = "/health"
-              port = 8000
-            }
-            initial_delay_seconds = 3
-            period_seconds        = 5
-          }
-
-          resources {
-            limits = {
-              cpu    = "500m"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "256Mi"
-            }
-          }
-        }
-      }
-    }
+resource "aws_eks_node_group" "image_api_nodes" {
+  cluster_name    = aws_eks_cluster.image_api_cluster.name
+  node_group_name = "image-api-nodes"
+  node_role_arn   = var.node_role_arn
+  subnet_ids      = var.subnet_ids
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
   }
 }
 
-resource "kubernetes_service" "image_api_service" {
-  metadata {
-    name = "image-api-service"
-  }
-
-  spec {
-    selector = {
-      app = "image-api"
-    }
-
-    port {
-      protocol    = "TCP"
-      port        = 80
-      target_port = 8000
-    }
-
-    type = "NodePort"
-  }
+output "cluster_endpoint" {
+  value = aws_eks_cluster.image_api_cluster.endpoint
 }
 
-resource "kubernetes_deployment" "sonarqube" {
-  metadata {
-    name = "sonarqube"
-  }
-  spec {
-    replicas = 1
-    selector {
-      match_labels = {
-        app = "sonarqube"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "sonarqube"
-        }
-      }
-      spec {
-        container {
-          image = "sonarqube:latest"
-          name  = "sonarqube"
-          port {
-            container_port = 9000
-          }
-        }
-      }
-    }
-  }
+output "cluster_name" {
+  value = aws_eks_cluster.image_api_cluster.name
 }
