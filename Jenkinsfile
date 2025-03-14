@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('SonarQube') {
-                        sh 'sonar-scanner -Dsonar.projectKey=image-api -Dsonar.sources=. -Dsonar.host.url=http://<sonarqube-ip>:9000 -Dsonar.login=$SONARQUBE_TOKEN'
+                        sh 'sonar-scanner -Dsonar.projectKey=image-api -Dsonar.sources=. -Dsonar.host.url=http://18.188.224.206:9000 -Dsonar.login=$SONARQUBE_TOKEN'
                     }
                 }
             }
