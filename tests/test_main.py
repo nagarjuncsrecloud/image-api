@@ -15,7 +15,7 @@ from io import BytesIO
 print(f"DEBUG: CI Current working directory: {os.getcwd()}")
 
 # Define absolute path to test image
-file_path = os.path.abspath(os.path.join(os.getcwd(), "tests", "test_images", "test.jpg"))
+file_path = os.path.abspath(os.path.join(os.getcwd(), "image-api", "tests", "test_images", "test.jpg"))
 
 print(f"DEBUG: Checking path -> {file_path}")
 

@@ -39,8 +39,12 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-asyncio httpx pytest-mock
       
-      - name: List directory for debugging
-        run: ls -R
+      - name: Debug File Structure
+        run: |
+          echo "Listing current directory"
+          ls -R .
+          echo "Listing tests directory"
+          ls -R ./image-api/tests
 
       - name: Run Unit Tests
         run: bash ./run_tests.sh
