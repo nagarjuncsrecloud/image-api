@@ -14,13 +14,13 @@ if [ -d "./image-api/tests" ]; then
 elif [ -d "./tests" ]; then
     TESTS_DIR="./tests"
 else
-    echo "Tests folder not found!"
+    echo "❌ Tests folder not found!"
     exit 1
 fi
 echo "Tests directory found at $TESTS_DIR"
 
-# Set PYTHONPATH to the project root
-export PYTHONPATH="$PROJECT_DIR"
+# Set PYTHONPATH to the image-api directory
+export PYTHONPATH="$PROJECT_DIR/image-api"
 echo "PYTHONPATH set to $PYTHONPATH"
 
 # Run pytest on the detected tests folder
