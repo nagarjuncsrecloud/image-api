@@ -68,9 +68,9 @@ jobs:
           args: >
             -Dsonar.projectKey=image-api
             -Dsonar.sources=.
-            -Dsonar.host.url=http://18.188.224.206:9000
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-
+            -Dsonar.ws.timeout=60
+            -Dsonar.log.level=DEBUG
+                        
       - name: Deploy with Terraform
         run: |
           terraform init
