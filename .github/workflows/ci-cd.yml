@@ -38,6 +38,9 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pytest pytest-asyncio httpx pytest-mock
+      
+      - name: List directory for debugging
+        run: ls -R
 
       - name: Run Unit Tests
         run: bash ./run_tests.sh
