@@ -40,11 +40,13 @@ jobs:
           pip install pytest pytest-asyncio httpx pytest-mock
 
       - name: Debug File Structure
+        working-directory: ./image-api
         run: |
           echo "Listing tests directory"
           ls -R ./tests
-          working-directory: ./image-api
+         
       - name: Run Unit Tests
+        working-directory: ./image-api
         run: bash ./run_tests.sh
 
       - name: Build Docker Image
