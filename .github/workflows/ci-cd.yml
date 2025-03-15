@@ -39,11 +39,14 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-asyncio httpx pytest-mock
 
+      - name: Generate Dummy Test Image
+        run: python image-api/tests/utils.py
+
       - name: Debug File Structure
         run: |
           echo "Listing tests directory"
           ls -R ./tests
-         
+      
       - name: Run Unit Tests
         run: bash ./run_tests.sh
 
