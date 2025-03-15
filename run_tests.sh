@@ -1,34 +1,22 @@
 #!/bin/bash
 
 # Enable strict error handling
-set -e  # Exit on first error
-set -o pipefail  # Prevent errors in pipelines from being masked
-set -u  # Treat unset variables as an error
+set -euo pipefail
 
 # Navigate to the project directory
-cd "$(dirname "$0")/.." || exit 1
-echo "Changed directory to $(pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_DIR"
+echo "Changed directory to $PROJECT_DIR"
 
 # Set PYTHONPATH to the current directory
-export PYTHONPATH=$(pwd)
+export PYTHONPATH="$PROJECT_DIR"
 echo "PYTHONPATH set to $PYTHONPATH"
 
-# Define the test files
-TEST_FILES=("tests/test_main.py" "tests/test_image_processing.py")
-
-# Run pytest on all test files
+# Run pytest on all test files within the tests directory
 echo "Running tests..."
-pytest -s -v "${TEST_FILES[@]}"
-
-# Capture exit status of pytest
-EXIT_STATUS=$?
-
-# Display result message
-if [ $EXIT_STATUS -eq 0 ]; then
+if pytest -s -v tests/; then
     echo "All tests passed!"
 else
     echo "Some tests failed. Check logs above."
+    exit 1
 fi
-
-# Exit with pytest's exit status
-exit $EXIT_STATUS
