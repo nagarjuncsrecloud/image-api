@@ -40,7 +40,7 @@ jobs:
           pip install pytest pytest-asyncio httpx pytest-mock
 
       - name: Run Unit Tests
-        run: sh ./run_tests.sh
+        run: bash ./run_tests.sh
 
       - name: Build Docker Image
         run: |
