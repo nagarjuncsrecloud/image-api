@@ -40,7 +40,7 @@ jobs:
           pip install pytest pytest-asyncio httpx pytest-mock
 
       - name: Generate Dummy Test Image
-        run: python image-api/tests/utils.py
+        run: python tests/utils.py
 
       - name: Debug File Structure
         run: |
