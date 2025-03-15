@@ -51,9 +51,9 @@ jobs:
         run: bash ./run_tests.sh
 
       - name: Build Docker Image
-        working-directory: image-api/docker
+        working-directory: ./image-api
         run: |
-          docker build -t nagarjuncsrecloud/image-api .
+          docker build -t nagarjuncsrecloud/image-api -f docker/Dockerfile .
           docker tag nagarjuncsrecloud/image-api nagarjuncsrecloud/image-api:latest
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker push nagarjuncsrecloud/image-api:latest
