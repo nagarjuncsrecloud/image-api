@@ -42,10 +42,10 @@ jobs:
       - name: Debug File Structure
         run: |
           echo "Listing tests directory"
-          ls -R ./image-api/tests
+          ls -R ./tests
          
       - name: Run Unit Tests
-        run: bash ./image-api/run_tests.sh
+        run: bash ./run_tests.sh
 
       - name: Build Docker Image
         run: |
