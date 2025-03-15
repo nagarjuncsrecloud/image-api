@@ -6,7 +6,7 @@ set -o pipefail  # Prevent errors in pipelines from being masked
 set -u  # Treat unset variables as an error
 
 # Navigate to the project directory
-cd "C:\Workspace\dev1\image-api" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 echo "Changed directory to $(pwd)"
 
 # Set PYTHONPATH to the current directory
