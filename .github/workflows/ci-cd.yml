@@ -51,6 +51,7 @@ jobs:
         run: bash ./run_tests.sh
 
       - name: Build Docker Image
+        working-directory: image-api/docker
         run: |
           docker build -t nagarjuncsrecloud/image-api .
           docker tag nagarjuncsrecloud/image-api nagarjuncsrecloud/image-api:latest
