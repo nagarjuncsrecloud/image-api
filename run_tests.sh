@@ -9,12 +9,12 @@ cd "$PROJECT_DIR"
 echo "Changed directory to $PROJECT_DIR"
 
 # Detect the correct tests folder path
-if [ -d "./image-api/tests" ]; then
-    TESTS_DIR="./image-api/tests"
-elif [ -d "./tests" ]; then
-    TESTS_DIR="./tests"
+if [ -d "$(pwd)/image-api/tests" ]; then
+	TESTS_DIR="$(pwd)/image-api/tests"
+elif [ -d "$(pwd)/tests" ]; then
+	TESTS_DIR="$(pwd)/tests"
 else
-    echo "❌ Tests folder not found!"
+    echo "Directory $(pwd)/image-api/tests Tests folder not found!"
     exit 1
 fi
 echo "Tests directory found at $TESTS_DIR"
